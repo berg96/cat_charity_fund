@@ -27,7 +27,7 @@ class CRUDDonation(CRUDBase[
         session: AsyncSession,
     ):
         return (await session.execute(
-            select(Donation).where(Donation.fully_invested == False)
+            select(Donation).where(Donation.fully_invested == False)  # noqa
         )).scalars().all()
 
 

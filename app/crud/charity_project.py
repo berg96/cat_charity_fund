@@ -32,7 +32,7 @@ class CRUDCharityProject(CRUDBase[
     ):
         return (await session.execute(
             select(CharityProject).where(
-                CharityProject.fully_invested == False
+                CharityProject.fully_invested == False  # noqa
             )
         )).scalars().all()
 
