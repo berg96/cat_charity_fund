@@ -28,6 +28,7 @@ tg: [@Berg1005](https://t.me/berg1005)
 * Uvicorn
 * SQLAlchemy
 * Alembic
+* Pydantic
 
 ## Как запустить проект
 
