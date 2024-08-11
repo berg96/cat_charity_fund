@@ -2,9 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.charity_project import charity_project_crud
-from app.crud.donation import donation_crud
 from app.models import CharityProject
-
 
 NAME_DUPLICATE = 'Проект с таким именем уже существует!'
 PROJECT_NOT_FOUND = 'Проект не найден!'
@@ -85,19 +83,3 @@ async def check_new_full_amount_more_invested_amount(
             status_code=400,
             detail=FULL_AMOUNT_LESS_INVESTED_AMOUNT
         )
-
-
-async def check_not_closed_projects_exists(
-    session: AsyncSession,
-) -> bool:
-    if await charity_project_crud.get_not_closed_charity_projects(session):
-        return True
-    return False
-
-
-async def check_not_closed_donations_exists(
-    session: AsyncSession,
-) -> bool:
-    if await donation_crud.get_not_closed_donations(session):
-        return True
-    return False

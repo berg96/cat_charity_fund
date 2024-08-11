@@ -22,13 +22,5 @@ class CRUDDonation(CRUDBase[
             ))
         ).scalars().all()
 
-    async def get_not_closed_donations(
-        self,
-        session: AsyncSession,
-    ):
-        return (await session.execute(
-            select(Donation).where(Donation.fully_invested == False)  # noqa
-        )).scalars().all()
-
 
 donation_crud = CRUDDonation(Donation)

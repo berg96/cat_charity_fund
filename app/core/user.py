@@ -15,7 +15,6 @@ from app.core.db import get_async_session
 from app.models.user import User
 from app.schemas.user import UserCreate
 
-
 SHORT_PASSWORD = 'Пароль должен содержать не менее 3 символов.'
 EMAIL_IN_PASSWORD = 'Пароль не должен содержать e-mail.'
 USER_REGISTERED = 'Пользователь {} зарегистрирован.'

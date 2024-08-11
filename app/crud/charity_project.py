@@ -26,15 +26,5 @@ class CRUDCharityProject(CRUDBase[
             )
         )).scalars().first()
 
-    async def get_not_closed_charity_projects(
-        self,
-        session: AsyncSession,
-    ):
-        return (await session.execute(
-            select(CharityProject).where(
-                CharityProject.fully_invested == False  # noqa
-            )
-        )).scalars().all()
-
 
 charity_project_crud = CRUDCharityProject(CharityProject)

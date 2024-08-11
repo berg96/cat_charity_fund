@@ -6,12 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.validators import (
     check_charity_project_exists, check_charity_project_not_closed,
     check_donations_exists, check_name_duplicate,
-    check_new_full_amount_more_invested_amount,
-    check_not_closed_donations_exists
+    check_new_full_amount_more_invested_amount
 )
 from app.core.db import get_async_session
 from app.core.user import current_superuser
 from app.crud.charity_project import charity_project_crud
+from app.crud.donation import donation_crud
 from app.schemas.charity_project import (
     CharityProjectCreate, CharityProjectDB, CharityProjectUpdate
 )
@@ -32,14 +32,17 @@ async def create_new_charity_project(
     """Только для суперюзеров."""
     await check_name_duplicate(charity_project.name, session)
     new_charity_project = await charity_project_crud.create(
-        charity_project, session
+        charity_project, session, before_investing=True
     )
-    while (
-        not new_charity_project.fully_invested and
-        await check_not_closed_donations_exists(session)
-    ):
-        await investing_donations_in_projects(session)
-        await session.refresh(new_charity_project)
+    new_charity_project.invested_amount = 0
+    changed_donations = investing_donations_in_projects(
+        new_charity_project,
+        await donation_crud.get_not_closed_objects(session)
+    )
+    await session.commit()
+    await session.refresh(new_charity_project)
+    for donation in changed_donations:
+        await session.refresh(donation)
     return new_charity_project
 
 

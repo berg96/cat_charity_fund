@@ -41,15 +41,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         obj_in,
         session: AsyncSession,
-        user: Optional[User] = None
+        user: Optional[User] = None,
+        before_investing: bool = False
     ) -> ModelType:
         obj_in_data = obj_in.dict()
         if user is not None:
             obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
+        if not before_investing:
+            await session.commit()
+            await session.refresh(db_obj)
         return db_obj
 
     async def update(
@@ -76,3 +78,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await session.delete(db_obj)
         await session.commit()
         return db_obj
+
+    async def get_not_closed_objects(
+        self,
+        session: AsyncSession,
+    ):
+        return (await session.execute(
+            select(self.model).where(
+                self.model.fully_invested == False  # noqa
+            )
+        )).scalars().all()
