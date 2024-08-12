@@ -36,17 +36,16 @@ async def create_new_donation(
     session: AsyncSession = Depends(get_async_session),
 ):
     new_donation = await donation_crud.create(
-        donation, session, user, before_investing=True
+        donation, session, user, new_project_or_donation=True
     )
-    new_donation.invested_amount = 0
+    charity_project_crud.set_default(new_donation)
     changed_projects = investing_donations_in_projects(
         new_donation,
         await charity_project_crud.get_not_closed_objects(session)
     )
+    session.add_all(changed_projects)
     await session.commit()
     await session.refresh(new_donation)
-    for project in changed_projects:
-        await session.refresh(project)
     return new_donation
 
 

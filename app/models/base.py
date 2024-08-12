@@ -19,11 +19,15 @@ class CharityBaseModel(Base):
         CheckConstraint(
             'invested_amount <= full_amount',
             name='check_invested_amount_less_full_amount'
+        ),
+        CheckConstraint(
+            'invested_amount >= 0', name='check_invested_amount_non_negative'
         )
     )
 
     def __repr__(self):
         return (
-            f'{self.__class__.__name__} '
-            f'{self.invested_amount}/{self.full_amount} {self.create_date}'
+            f'{type(self).__name__} '
+            f'{self.invested_amount}/{self.full_amount} '
+            f'from {self.create_date} to {self.close_date}'
         )

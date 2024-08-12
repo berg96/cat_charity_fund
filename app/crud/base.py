@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Generic, List, Optional, Type, TypeVar
 
 from fastapi.encoders import jsonable_encoder
@@ -42,14 +43,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_in,
         session: AsyncSession,
         user: Optional[User] = None,
-        before_investing: bool = False
+        new_project_or_donation: bool = False
     ) -> ModelType:
         obj_in_data = obj_in.dict()
         if user is not None:
             obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
-        if not before_investing:
+        if not new_project_or_donation:
             await session.commit()
             await session.refresh(db_obj)
         return db_obj
@@ -88,3 +89,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 self.model.fully_invested == False  # noqa
             )
         )).scalars().all()
+
+    def set_default(self, db_obj):
+        db_obj.invested_amount = 0
+        db_obj.fully_invested = False
+        db_obj.create_date = datetime.now()
+        return db_obj
