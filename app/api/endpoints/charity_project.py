@@ -32,14 +32,13 @@ async def create_new_charity_project(
     """Только для суперюзеров."""
     await check_name_duplicate(charity_project.name, session)
     new_charity_project = await charity_project_crud.create(
-        charity_project, session, new_project_or_donation=True
+        charity_project, session, make_commit=False
     )
-    charity_project_crud.set_default(new_charity_project)
-    changed_donations = investing_donations_in_projects(
+    new_charity_project.set_default()
+    session.add_all(investing_donations_in_projects(
         new_charity_project,
         await donation_crud.get_not_closed_objects(session)
-    )
-    session.add_all(changed_donations)
+    ))
     await session.commit()
     await session.refresh(new_charity_project)
     return new_charity_project

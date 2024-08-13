@@ -17,17 +17,19 @@ class CharityBaseModel(Base):
     __table_args__ = (
         CheckConstraint('full_amount > 0', name='check_full_amount_positive'),
         CheckConstraint(
-            'invested_amount <= full_amount',
-            name='check_invested_amount_less_full_amount'
+            '0 <= invested_amount <= full_amount',
+            name='check_invested_amount_non_negative_and_less_full_amount'
         ),
-        CheckConstraint(
-            'invested_amount >= 0', name='check_invested_amount_non_negative'
-        )
     )
 
     def __repr__(self):
         return (
             f'{type(self).__name__} '
             f'{self.invested_amount}/{self.full_amount} '
-            f'from {self.create_date} to {self.close_date}'
+            f'{self.create_date} // {self.close_date}'
         )
+
+    def set_default(self):
+        self.invested_amount = 0
+        self.fully_invested = False
+        self.create_date = datetime.now()
